@@ -1,35 +1,36 @@
 {
-  "name": "life",
-  "version": "0.1.0",
+  "name": "howlongdoihaveleft",
   "private": true,
+  "version": "0.0.0",
+  "type": "module",
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "next lint"
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "lint": "eslint .",
+    "preview": "vite preview"
   },
   "dependencies": {
-    "@radix-ui/react-slot": "^1.1.0",
-    "class-variance-authority": "^0.7.0",
-    "clsx": "^2.1.1",
-    "framer-motion": "^11.2.13",
-    "lucide-react": "^0.400.0",
-    "moment": "^2.30.1",
-    "next": "14.2.4",
-    "next-themes": "^0.3.0",
-    "react": "^18",
-    "react-dom": "^18",
-    "tailwind-merge": "^2.3.0",
-    "tailwindcss-animate": "^1.0.7"
+    "@tailwindcss/vite": "^4.1.13",
+    "dayjs": "^1.11.18",
+    "motion": "^12.23.12",
+    "react": "^19.1.1",
+    "react-day-picker": "^9.9.0",
+    "react-dom": "^19.1.1",
+    "tailwindcss": "^4.1.13",
+    "three": "^0.180.0"
   },
   "devDependencies": {
-    "@types/node": "^20",
-    "@types/react": "^18",
-    "@types/react-dom": "^18",
-    "eslint": "^8",
-    "eslint-config-next": "14.2.4",
-    "postcss": "^8",
-    "tailwindcss": "^3.4.1",
-    "typescript": "^5"
+    "@eslint/js": "^9.33.0",
+    "@types/react": "^19.1.10",
+    "@types/react-dom": "^19.1.7",
+    "@types/three": "^0.180.0",
+    "@vitejs/plugin-react": "^5.0.0",
+    "eslint": "^9.33.0",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "eslint-plugin-react-refresh": "^0.4.20",
+    "globals": "^16.3.0",
+    "typescript": "~5.8.3",
+    "typescript-eslint": "^8.39.1",
+    "vite": "^7.1.2"
   }
 }
