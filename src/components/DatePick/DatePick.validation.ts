@@ -5,9 +5,9 @@ export interface ValidationResult {
   error?: string;
 }
 
-export const validateInput = (
-  day: number,
-  month: number,
+export const validateDate = (
+  day: number | null,
+  month: number | null,
   year: string
 ): ValidationResult => {
   // #1 Check if all 3 are present

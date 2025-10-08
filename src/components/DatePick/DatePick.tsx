@@ -1,63 +1,21 @@
-import { AnimatePresence, motion, useAnimation } from "motion/react";
-import { useState } from "react";
-import dayjs from "dayjs";
+import { AnimatePresence, motion } from "motion/react";
 import * as Types from "./DatePick.types";
+import { DAYS, DELAYS, MONTHS } from "./DatePick.const";
+import { useDatePicker } from "./DatePick.hooks";
 
 export const DatePick = ({ setUsersDate }: Types.DatePickProps) => {
   const openingSentence = "When were you born?";
 
-  const Days = Array.from({ length: 31 }, (_, i) => i + 1);
-  const Months = [
-    "January",
-    "February",
-    "March",
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December",
-  ];
-
-  const handleDaySelect = (day: number) => {
-    if (daySelected === day) {
-      setDaySelected(null);
-    } else {
-      setDaySelected(day);
-    }
-  };
-
-  const handleMonthSelect = (month: number) => {
-    if (monthSelected === month) {
-      setMonthSelected(null);
-    } else {
-      setMonthSelected(month);
-    }
-  };
-
-  const handleChangeYearInput = (e: React.ChangeEvent<HTMLInputElement>) => {
-    controls.start({
-      scale: [1, 1.05, 1],
-      transition: { duration: 0.2 },
-    });
-    const input = e.target.value;
-    if (/^\d{0,4}$/.test(input)) {
-      setYearInput(input);
-      console.log(input);
-    }
-  };
-
-  const handleSubmitButton = () => {};
-
-  const [daySelected, setDaySelected] = useState<number | null>(null);
-  const [monthSelected, setMonthSelected] = useState<number | null>(null);
-  const [yearInput, setYearInput] = useState<string>("");
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
-
-  const controls = useAnimation();
+  const {
+    dateState,
+    errorMessage,
+    controls,
+    handleDaySelect,
+    handleMonthSelect,
+    handleYearChange,
+    handleSubmit,
+    isFormComplete,
+  } = useDatePicker(setUsersDate);
 
   const displayText = errorMessage || openingSentence;
 
@@ -66,32 +24,28 @@ export const DatePick = ({ setUsersDate }: Types.DatePickProps) => {
     <div className="flex flex-col justify-center items-center pb-36 gap-10 select-none">
       {/* "when were you born" text */}
       <div className="upper-text flex text-center mt-4 mb-4 justify-center">
-        <motion.div className="flex gap-4 text-4xl">
-          {openingSentence.split(" ").map((word, index) => (
-            <motion.span
-              key={index}
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{
-                duration: 1,
-                ease: "easeInOut",
-                delay: index * 0.5,
-              }}
-            >
-              {word}
-            </motion.span>
-          ))}
-        </motion.div>
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={displayText}
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 10 }}
+            transition={{ duration: 0.3 }}
+            className={`text-4xl ${errorMessage ? "text-red-400" : ""}`}
+          >
+            {displayText}
+          </motion.div>
+        </AnimatePresence>
       </div>
 
       {/* days grid */}
       <motion.div
         animate={{ opacity: 1 }}
         initial={{ opacity: 0 }}
-        transition={{ duration: 1, ease: "easeInOut", delay: 2.5 }}
+        transition={{ duration: 1, ease: "easeInOut", delay: DELAYS.DAYS }}
         className="daypick grid grid-cols-7 gap-5 text-center w-full"
       >
-        {Days.map((day) => (
+        {DAYS.map((day) => (
           <motion.div
             onClick={() => handleDaySelect(day)}
             key={day}
@@ -100,8 +54,8 @@ export const DatePick = ({ setUsersDate }: Types.DatePickProps) => {
           >
             <span
               className={`transition-all duration-200
-      ${daySelected === day ? "underline underline-offset-4" : ""}
-      ${daySelected !== null && daySelected !== day ? "text-stone-500" : ""}
+      ${dateState.day === day ? "underline underline-offset-4" : ""}
+      ${dateState.day !== null && dateState.day !== day ? "text-stone-500" : ""}
     `}
             >
               {day}
@@ -113,7 +67,11 @@ export const DatePick = ({ setUsersDate }: Types.DatePickProps) => {
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ duration: 1, ease: "easeInOut", delay: 3.5 }}
+        transition={{
+          duration: 1,
+          ease: "easeInOut",
+          delay: DELAYS.DIVIDER1,
+        }}
         className="divider w-full bg-stone-500 h-[1px]"
       />
 
@@ -121,10 +79,10 @@ export const DatePick = ({ setUsersDate }: Types.DatePickProps) => {
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ duration: 1, ease: "easeInOut", delay: 4.5 }}
+        transition={{ duration: 1, ease: "easeInOut", delay: DELAYS.MONTHS }}
         className="w-full"
       >
-        {Months.map((month, index) => (
+        {MONTHS.map((month, index) => (
           <motion.div
             key={index}
             onClick={() => handleMonthSelect(index)}
@@ -133,9 +91,13 @@ export const DatePick = ({ setUsersDate }: Types.DatePickProps) => {
           >
             <span
               className={`transition-colors duration-200
-                ${monthSelected === index ? "underline underline-offset-4" : ""}
                 ${
-                  monthSelected !== null && monthSelected !== index
+                  dateState.month === index
+                    ? "underline underline-offset-4"
+                    : ""
+                }
+                ${
+                  dateState.month !== null && dateState.month !== index
                     ? "text-stone-500"
                     : ""
                 }`}
@@ -143,7 +105,7 @@ export const DatePick = ({ setUsersDate }: Types.DatePickProps) => {
               {month}
             </span>
             <motion.span>{`${
-              monthSelected === index ? "☒" : "☐"
+              dateState.month === index ? "☒" : "☐"
             }`}</motion.span>
           </motion.div>
         ))}
@@ -152,7 +114,7 @@ export const DatePick = ({ setUsersDate }: Types.DatePickProps) => {
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ duration: 1, ease: "easeInOut", delay: 5.5 }}
+        transition={{ duration: 1, ease: "easeInOut", delay: DELAYS.DIVIDER2 }}
         className="divider w-full bg-stone-500 h-[1px]"
       />
       {/* year input */}
@@ -160,24 +122,24 @@ export const DatePick = ({ setUsersDate }: Types.DatePickProps) => {
         className="w-full"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ duration: 1, ease: "easeInOut", delay: 6.5 }}
+        transition={{ duration: 1, ease: "easeInOut", delay: DELAYS.YEAR }}
       >
         <motion.input
           type="text"
           maxLength={4}
           animate={controls}
-          value={yearInput}
-          onChange={handleChangeYearInput}
+          value={dateState.year}
+          onChange={handleYearChange}
           whileTap={{ scale: 1.1, transition: { duration: 0.1 } }}
           className="rounded-sm outline-1 outline-white text-center focus:outline-1 focus:outline-white p-2 w-full"
           placeholder="Year"
         />
       </motion.div>
       <AnimatePresence>
-        {daySelected && monthSelected && yearInput.length === 4 ? (
+        {isFormComplete ? (
           <motion.button
             key="button-next"
-            onClick={handleSubmitButton}
+            onClick={handleSubmit}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
