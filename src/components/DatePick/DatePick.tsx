@@ -1,8 +1,9 @@
 import { AnimatePresence, motion, useAnimation } from "motion/react";
 import { useState } from "react";
 import dayjs from "dayjs";
+import * as Types from "./DatePick.types";
 
-export const DatePick = () => {
+export const DatePick = ({ setUsersDate }: Types.DatePickProps) => {
   const openingSentence = "When were you born?";
 
   const Days = Array.from({ length: 31 }, (_, i) => i + 1);
@@ -29,7 +30,7 @@ export const DatePick = () => {
     }
   };
 
-  const handleMonthSelect = (month: string) => {
+  const handleMonthSelect = (month: number) => {
     if (monthSelected === month) {
       setMonthSelected(null);
     } else {
@@ -49,26 +50,22 @@ export const DatePick = () => {
     }
   };
 
-  const handleSubmitButton = () => {
-    console.log("submit");
-    if (daySelected && monthSelected && yearInput.length === 4) {
-      const dateString = `${yearInput}-${monthSelected}-${daySelected}`;
-      const dob = dayjs(dateString, ["YYYY-MMMM-D", "YYYY-MMM-D"], true);
-      console.log(dob);
-    }
-  };
+  const handleSubmitButton = () => {};
 
   const [daySelected, setDaySelected] = useState<number | null>(null);
-  const [monthSelected, setMonthSelected] = useState<string | null>(null);
+  const [monthSelected, setMonthSelected] = useState<number | null>(null);
   const [yearInput, setYearInput] = useState<string>("");
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const controls = useAnimation();
 
+  const displayText = errorMessage || openingSentence;
+
   return (
     //wrapper
-    <div className="flex flex-col justify-center items-center gap-10 select-none">
+    <div className="flex flex-col justify-center items-center pb-36 gap-10 select-none">
       {/* "when were you born" text */}
-      <div className="upper-text flex text-center mt-4 justify-center">
+      <div className="upper-text flex text-center mt-4 mb-4 justify-center">
         <motion.div className="flex gap-4 text-4xl">
           {openingSentence.split(" ").map((word, index) => (
             <motion.span
@@ -129,16 +126,16 @@ export const DatePick = () => {
       >
         {Months.map((month, index) => (
           <motion.div
-            key={month}
-            onClick={() => handleMonthSelect(month)}
+            key={index}
+            onClick={() => handleMonthSelect(index)}
             whileTap={{ scale: 1.1, transition: { duration: 0.05 } }}
             className="flex justify-between cursor-pointer hover:text-stone-300 transition-colors duration-200"
           >
             <span
               className={`transition-colors duration-200
-                ${monthSelected === month ? "underline underline-offset-4" : ""}
+                ${monthSelected === index ? "underline underline-offset-4" : ""}
                 ${
-                  monthSelected !== null && monthSelected !== month
+                  monthSelected !== null && monthSelected !== index
                     ? "text-stone-500"
                     : ""
                 }`}
@@ -146,7 +143,7 @@ export const DatePick = () => {
               {month}
             </span>
             <motion.span>{`${
-              monthSelected === month ? "☒" : "☐"
+              monthSelected === index ? "☒" : "☐"
             }`}</motion.span>
           </motion.div>
         ))}
@@ -172,7 +169,7 @@ export const DatePick = () => {
           value={yearInput}
           onChange={handleChangeYearInput}
           whileTap={{ scale: 1.1, transition: { duration: 0.1 } }}
-          className="rounded-sm outline-1 text-center focus:outline-1 p-2 w-full"
+          className="rounded-sm outline-1 outline-white text-center focus:outline-1 focus:outline-white p-2 w-full"
           placeholder="Year"
         />
       </motion.div>
