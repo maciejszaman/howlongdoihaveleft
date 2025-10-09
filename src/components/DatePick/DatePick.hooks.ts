@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useAnimation } from "motion/react";
 import dayjs from "dayjs";
 import { validateDate } from "./DatePick.validation";
@@ -11,6 +11,10 @@ export const useDatePicker = (onSubmit: (date: Date) => void) => {
     year: "",
   });
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+
+  const isSubmittingRef = useRef(false);
+
   const controls = useAnimation();
 
   const handleDaySelect = (day: number) => {
@@ -42,6 +46,11 @@ export const useDatePicker = (onSubmit: (date: Date) => void) => {
   };
 
   const handleSubmit = () => {
+    if (isSubmittingRef.current) return;
+
+    isSubmittingRef.current = true;
+    console.log("IS SUBMITTING = TRUE");
+    setIsSubmitting(true);
     const validation = validateDate(
       localDateState.day,
       localDateState.month,
@@ -66,8 +75,12 @@ export const useDatePicker = (onSubmit: (date: Date) => void) => {
 
   const handleReset = () => {
     setLocalDateState({ day: null, month: null, year: "" });
+    window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
     setTimeout(() => {
       setErrorMessage(null);
+      console.log("submitting - false");
+      setIsSubmitting(false);
+      isSubmittingRef.current = false;
     }, 3000);
   };
 
@@ -86,5 +99,6 @@ export const useDatePicker = (onSubmit: (date: Date) => void) => {
     handleSubmit,
     isFormComplete,
     handleReset,
+    isSubmitting,
   };
 };

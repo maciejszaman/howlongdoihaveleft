@@ -21,14 +21,13 @@ export const validateDate = (
   const yearNumber = Number(year);
 
   // #2 Check if year is real
-  if (yearNumber < 1900 || yearNumber > new Date().getFullYear()) {
+  if (yearNumber < 1940 || yearNumber > new Date().getFullYear()) {
     return {
       isValid: false,
       error: "Please enter a valid year",
     };
   }
 
-  // #3 Proceed
   const date = dayjs(`${yearNumber}-${month + 1}-${day}`, "YYYY-M-D", true);
 
   if (!date.isValid()) {

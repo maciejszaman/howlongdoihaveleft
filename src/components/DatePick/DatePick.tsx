@@ -15,26 +15,46 @@ export const DatePick = ({ setUsersDate }: Types.DatePickProps) => {
     handleYearChange,
     handleSubmit,
     isFormComplete,
+    isSubmitting,
   } = useDatePicker(setUsersDate);
-
-  const displayText = errorMessage || openingSentence;
 
   return (
     //wrapper
     <div className="flex flex-col justify-center items-center pb-36 gap-10 select-none">
       {/* "when were you born" text */}
-      <div className="upper-text flex text-center mt-4 mb-4 justify-center">
+      <div className="upper-text flex text-center mt-4 whitespace-nowrap h-16">
         <AnimatePresence mode="wait">
-          <motion.div
-            key={displayText}
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 10 }}
-            transition={{ duration: 0.3 }}
-            className={`text-4xl ${errorMessage ? "text-red-400" : ""}`}
-          >
-            {displayText}
-          </motion.div>
+          {errorMessage ? (
+            <motion.div
+              key="error"
+              initial={{ opacity: 0, y: -10, fontSize: "4rem" }}
+              animate={{ opacity: 1, y: 0, fontSize: "2.25rem" }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className={
+                "text-4xl w-full text-red-500 text-shadow-xs/50 text-shadow-red-500"
+              }
+            >
+              {errorMessage}
+            </motion.div>
+          ) : (
+            <motion.div key={openingSentence} className={`text-4xl flex gap-4`}>
+              {openingSentence.split(" ").map((word, index) => (
+                <motion.span
+                  key={index}
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{
+                    duration: 0.5,
+                    ease: "easeInOut",
+                    delay: index * 0.5,
+                  }}
+                >
+                  {word}
+                </motion.span>
+              ))}
+            </motion.div>
+          )}
         </AnimatePresence>
       </div>
 
@@ -140,15 +160,22 @@ export const DatePick = ({ setUsersDate }: Types.DatePickProps) => {
           <motion.button
             key="button-next"
             onClick={handleSubmit}
+            disabled={isSubmitting}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            whileTap={{
-              scale: 1.1,
-              transition: { duration: 0.03, ease: "easeInOut" },
-            }}
+            whileTap={
+              isSubmitting
+                ? undefined
+                : {
+                    scale: 1.1,
+                    transition: { duration: 0.03, ease: "easeInOut" },
+                  }
+            }
             transition={{ duration: 0.5, ease: "easeInOut" }}
-            className="text-black bg-white p-2 w-full mx-6 text-center font-bold rounded-sm shadow-stone-600 shadow-xl hover:shadow-lg transition-shadow ease-in-out duration-200 cursor-pointer"
+            className={`text-black bg-white p-2 w-full mx-6 text-center font-bold rounded-sm shadow-stone-600 shadow-xl hover:shadow-lg transition-shadow ease-in-out duration-200 cursor-pointer ${
+              isSubmitting ? "opacity-50 pointer-events-none" : "cursor-pointer"
+            }`}
           >
             Next
           </motion.button>
